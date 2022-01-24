@@ -105,7 +105,7 @@ output$fn <- renderUI({
                                         min(date)+1)/365.25))
       ) %>%
       select(date,doy,year,labranza:siembra) %>%
-      full_join(out2,by="doy") %>%
+      full_join(out2,by=c("doy","year")) %>%
       filter(is.na(daycent)==FALSE)
   },options = list(pageLength = 100))
   
