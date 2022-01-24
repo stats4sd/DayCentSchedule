@@ -8,12 +8,13 @@ library(lubridate)
 ui <- fluidPage(
 
     # Application title
-    titlePanel("DayCentScheduler"),
+    titlePanel("Create DayCent Scheduler File From Input"),
 
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
-          fileInput("file1", "Upload Schedule File",
+          htmlOutput("downloader"),
+          fileInput("file1", "Upload Completed Excel Schedule Template",
                     multiple = FALSE,
                     accept = c(".xlsx")),
           uiOutput("fn"),
@@ -23,9 +24,9 @@ ui <- fluidPage(
         # Show a plot of the generated distribution
         mainPanel(
           tabsetPanel(
-            tabPanel("Schedule",
+            tabPanel("View Schedule",
           htmlOutput("schedule")),
-           tabPanel("Input",
+           tabPanel("View Inputs",
           DTOutput("data1"))
         )
     )
@@ -35,33 +36,52 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
+  output$downloader<-renderText(
+    
+    HTML('Download Blank Excel Template File: <a href="https://github.com/stats4sd/DayCentSchedule/raw/main/scheduleFile_template.xlsx">Here</a><br><br>')
+    
+  )
   observeEvent(input$file1,{
     
   
-  schedule<-read.xlsx(input$file1$datapath,1)
+    nms<-getSheetNames(input$file1$datapath)
+    nms<-nms[nms!="lookups"]
+    
+    schedule<-NULL
+    for(i in nms){
+      tmp<-read.xlsx(input$file1$datapath,i)
+      if(colnames(tmp)[1]=="fecha"){
+        schedule<-rbind(tmp,schedule)
+      }
+    }
+    
   lookups<-read.xlsx(input$file1$datapath,"lookups")
 
   out1<-schedule %>%
+    arrange(fecha) %>%
     mutate(siembra=ifelse(is.na(cultivo),
                           NA,"FRST"),
-           doy=yday(as.Date(schedule$fecha,origin="1899-12-30"))
+           date=as.Date(fecha,origin="1899-12-30"),
+           doy=yday(date),
+           year=as.numeric(ceiling((date-
+                                      min(date)+1)/365.25))
     ) %>%
-    select(-fecha) %>%
+    select(-fecha,-date) %>%
     pivot_longer(cols=labranza:siembra,
                  names_to="parameter",values_to = "val",values_drop_na = TRUE) %>%
     left_join(lookups,by=c("parameter"="variable","val"="text")) %>%
     mutate(code=ifelse(parameter=="siembra",val,code),
-           daycent=paste(doy,code)) %>%
-    select(daycent,doy) 
-
-  output$fn <- renderUI({
+           daycent=paste(year,doy,code)) %>%
+    select(daycent,year,doy)
+  
+output$fn <- renderUI({
     req(is.null(out1)==FALSE)
     textInput("filename","Enter Output File Name",value="myschedule")
   })
     
   output$dl <- renderUI({
     req(is.null(out1)==FALSE)
-    downloadLink('downloadData', 'Download Schedule')
+    downloadLink('downloadData', 'Download Daycent Schedule File')
   })
   
   
@@ -72,15 +92,19 @@ server <- function(input, output) {
   output$data1<-DT::renderDT({
     
     out1 %>%
-      group_by(doy) %>%
+      group_by(year,doy) %>%
        summarise(daycent=paste(daycent,collapse=" "))->out2
     
     schedule %>%
+      arrange(fecha) %>%
       mutate(siembra=ifelse(is.na(cultivo),
                             NA,"FRST"),
-             date=as.Date(schedule$fecha,origin="1899-12-30"),
-             doy=yday(as.Date(schedule$fecha,origin="1899-12-30"))) %>%
-      select(date,doy,labranza:siembra) %>%
+             date=as.Date(fecha,origin="1899-12-30"),
+             doy=yday(date),
+             year=as.numeric(ceiling((date-
+                                        min(date)+1)/365.25))
+      ) %>%
+      select(date,doy,year,labranza:siembra) %>%
       full_join(out2,by="doy") %>%
       filter(is.na(daycent)==FALSE)
   },options = list(pageLength = 100))
@@ -91,7 +115,7 @@ server <- function(input, output) {
       paste(input$filename, '.txt', sep='')
     },
     content = function(con) {
-      write.table(select(out1,-doy),con,row.names=FALSE,quote = FALSE,col.names = FALSE)
+      write.table(select(out1,-doy,-year),con,row.names=FALSE,quote = FALSE,col.names = FALSE)
     }
 )
   })  
