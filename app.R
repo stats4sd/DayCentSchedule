@@ -4,6 +4,9 @@ library(openxlsx)
 library(tidyverse)
 library(lubridate)
 
+#validentries<-read.xlsx("dot100_variableLists.xlsx",1)
+#write.csv(validentries,"validentries.csv",row.names = FALSE)
+validentries<-read.csv("validentries.csv")
 # Define UI for application that draws a histogram
 ui <- fluidPage(
 
@@ -25,7 +28,8 @@ ui <- fluidPage(
         mainPanel(
           tabsetPanel(
             tabPanel("View Schedule",
-          htmlOutput("schedule")),
+                     htmlOutput("warning"),
+                     htmlOutput("schedule")),
            tabPanel("View Inputs",
           DTOutput("data1"))
         )
@@ -58,7 +62,25 @@ server <- function(input, output) {
     }
     
   lookups<-read.xlsx(input$file1$datapath,"lookups")
+  lookups$code<-toupper(lookups$code)
+  output$warning<-renderText({
+    
+    fails<-anti_join(lookups,validentries)
+    if(nrow(fails)==0){
+      message<-""
+    }
+    else{
+      message<-paste("<p style='color:red;'>WARNING: ",nrow(fails)," code(s) specified in lookup list that were not found in the global dictionary.<br>",
+                     "These are:<br>",paste(fails$code,collapse="<br>"),"<br><br>",
+                     "Schedule file has been created with these codes still included.
+                     Please check codes, and correct them if needed.<br></p>")
+    }
+    
+    message
+  })
 
+
+  
   out1<-schedule %>%
     arrange(fecha) %>%
     mutate(siembra=ifelse(is.na(cultivo),
