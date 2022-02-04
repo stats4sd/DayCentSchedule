@@ -33,6 +33,8 @@ ui <- fluidPage(
     )
 )
 
+file1<-"C:/Users/sdumb/Documents/scheduleFile_template_SV2_test.xlsx"
+
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
@@ -63,9 +65,12 @@ server <- function(input, output) {
                           NA,"FRST"),
            date=as.Date(fecha,origin="1899-12-30"),
            doy=yday(date),
-           year=as.numeric(ceiling((date-
-                                      min(date)+1)/365.25))
-    ) %>%
+           year=1
+    )
+  for(i in 2:nrow(out1)){
+    out1$year[i]<-ifelse(out1$doy[i]>out1$doy[i-1],out1$year[i-1],out1$year[i-1]+1)
+  }
+  out1<-out1  %>%
     select(-fecha,-date) %>%
     pivot_longer(cols=labranza:siembra,
                  names_to="parameter",values_to = "val",values_drop_na = TRUE) %>%
@@ -95,15 +100,20 @@ output$fn <- renderUI({
       group_by(year,doy) %>%
        summarise(daycent=paste(daycent,collapse=" "))->out2
     
-    schedule %>%
+    schedule<- schedule %>%
       arrange(fecha) %>%
       mutate(siembra=ifelse(is.na(cultivo),
                             NA,"FRST"),
              date=as.Date(fecha,origin="1899-12-30"),
              doy=yday(date),
-             year=as.numeric(ceiling((date-
-                                        min(date)+1)/365.25))
-      ) %>%
+             year=1
+      )
+    for(i in 2:nrow(schedule)){
+      schedule$year[i]<-ifelse(schedule$doy[i]>schedule$doy[i-1],
+                               schedule$year[i-1],schedule$year[i-1]+1)
+    }
+  
+   schedule  %>%
       select(date,doy,year,labranza:siembra) %>%
       full_join(out2,by=c("doy","year")) %>%
       filter(is.na(daycent)==FALSE)
