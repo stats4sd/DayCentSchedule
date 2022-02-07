@@ -133,7 +133,7 @@ output$fn <- renderUI({
 
     }
     if(input$header==FALSE){
-      tx1<-paste(dl_vers1$daycent,collapse="<br>")
+      tx1<-paste(paste0("&nbsp;&nbsp;",dl_vers1$daycent),collapse="<br>")
     }
     HTML(tx1)
   })
@@ -184,7 +184,9 @@ output$fn <- renderUI({
             rbind(data.frame(col1=" ",col2=dl_vers$daycent)) %>%
             rbind(data.frame(col1="-999 -999 X",col2=""))
         }
-     
+     else{
+       dl_vers$daycent<-paste0("  ",dl_vers$daycent)
+     }
       write.table(dl_vers,con,row.names=FALSE,quote = FALSE,col.names = FALSE
                     )
     }
