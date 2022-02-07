@@ -117,22 +117,23 @@ output$fn <- renderUI({
   
   output$schedule<-renderUI({
     
-    dl_vers<-select(out1,-doy,-year)
+    dl_vers1<-select(out1,-doy,-year)
     if(input$header==TRUE){
       col1<-c("[XXX]","[XXX]","[XXX].100",0,-1,"-1.00",-1,-1,-1,0,0,-1,1,"[XXX]","","","Year Month Option",
-              "[XXX]","[XXX]","[XXX]","[XXX]","12","0.01923","F","[XXX].wth")
+              "[XXX]","[XXX]","[XXX]","[XXX]","12","0.01923","F","[XXX].wth","")
       col2<-c("Starting Year","Last Year","Site file name","Labeling type","Labeling Year","Microcosm",
               "CO2 Systems","pH effect","Soil Warming","N input scalar option","OMAD scalar option",
               "Climate scalar option","Initial system","Initial crop","Initial tree","","","Block",
-              "Last year","Repeats","Output starting year","Output month","Output interval","Weather choice","")  
-      dl_vers<-data.frame(col1,col2) %>%
-        rbind(data.frame(col1="",col2=dl_vers$daycent)) %>%
+              "Last year","Repeats","Output starting year","Output month","Output interval","Weather choice","","")  
+      dl_vers1<-data.frame(col1,col2) %>%
+        rbind(data.frame(col1="&nbsp;&nbsp;",col2=paste(" ",dl_vers1$daycent))) %>%
         rbind(data.frame(col1="-999 -999 X",col2=""))
-      tx1<-paste(paste(dl_vers$col1,dl_vers$col2,sep="\t"),collapse="<br>")
+      
+      tx1<-paste(paste(dl_vers1$col1,dl_vers1$col2,sep="\t"),collapse="<br>")
 
     }
     if(input$header==FALSE){
-      tx1<-paste(dl_vers$daycent,collapse="<br>")
+      tx1<-paste(dl_vers1$daycent,collapse="<br>")
     }
     HTML(tx1)
   })
@@ -174,13 +175,13 @@ output$fn <- renderUI({
       dl_vers<-select(out1,-doy,-year)
         if(input$header==TRUE){
           col1<-c("[XXX]","[XXX]","[XXX].100",0,-1,"-1.00",-1,-1,-1,0,0,-1,1,"[XXX]","","","Year Month Option",
-                  "[XXX]","[XXX]","[XXX]","[XXX]","12","0.01923","F","[XXX].wth")
+                  "[XXX]","[XXX]","[XXX]","[XXX]","12","0.01923","F","[XXX].wth","")
           col2<-c("Starting Year","Last Year","Site file name","Labeling type","Labeling Year","Microcosm",
                   "CO2 Systems","pH effect","Soil Warming","N input scalar option","OMAD scalar option",
                   "Climate scalar option","Initial system","Initial crop","Initial tree","","","Block",
-                  "Last year","Repeats","Output starting year","Output month","Output interval","Weather choice","")  
+                  "Last year","Repeats","Output starting year","Output month","Output interval","Weather choice","","")  
           dl_vers<-data.frame(col1,col2) %>%
-            rbind(data.frame(col1="",col2=dl_vers$daycent)) %>%
+            rbind(data.frame(col1=" ",col2=dl_vers$daycent)) %>%
             rbind(data.frame(col1="-999 -999 X",col2=""))
         }
      
