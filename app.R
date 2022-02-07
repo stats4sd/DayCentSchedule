@@ -20,6 +20,7 @@ ui <- fluidPage(
           fileInput("file1", "Upload Completed Excel Schedule Template",
                     multiple = FALSE,
                     accept = c(".xlsx")),
+          checkboxInput("header","Include header/footer in schedule?",value = TRUE),
           uiOutput("fn"),
         uiOutput("dl")
         ),
@@ -37,7 +38,7 @@ ui <- fluidPage(
     )
 )
 
-file1<-"C:/Users/sdumb/Documents/scheduleFile_template_SV2_test.xlsx"
+#file1<-"C:/Users/sdumb/Documents/scheduleFile_template_SV2_test.xlsx"
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
@@ -101,6 +102,8 @@ server <- function(input, output) {
            daycent=paste(year,doy,code)) %>%
     select(daycent,year,doy)
   
+
+  
 output$fn <- renderUI({
     req(is.null(out1)==FALSE)
     textInput("filename","Enter Output File Name",value="myschedule")
@@ -113,7 +116,25 @@ output$fn <- renderUI({
   
   
   output$schedule<-renderUI({
-    HTML(paste(out1$daycent,collapse="<br>"))
+    
+    dl_vers<-select(out1,-doy,-year)
+    if(input$header==TRUE){
+      col1<-c("[XXX]","[XXX]","[XXX].100",0,-1,"-1.00",-1,-1,-1,0,0,-1,1,"[XXX]","","","Year Month Option",
+              "[XXX]","[XXX]","[XXX]","[XXX]","12","0.01923","F","[XXX].wth")
+      col2<-c("Starting Year","Last Year","Site file name","Labeling type","Labeling Year","Microcosm",
+              "CO2 Systems","pH effect","Soil Warming","N input scalar option","OMAD scalar option",
+              "Climate scalar option","Initial system","Initial crop","Initial tree","","","Block",
+              "Last year","Repeats","Output starting year","Output month","Output interval","Weather choice","")  
+      dl_vers<-data.frame(col1,col2) %>%
+        rbind(data.frame(col1="",col2=dl_vers$daycent)) %>%
+        rbind(data.frame(col1="-999 -999 X",col2=""))
+      tx1<-paste(paste(dl_vers$col1,dl_vers$col2,sep="\t"),collapse="<br>")
+
+    }
+    if(input$header==FALSE){
+      tx1<-paste(dl_vers$daycent,collapse="<br>")
+    }
+    HTML(tx1)
   })
   
   output$data1<-DT::renderDT({
@@ -141,13 +162,30 @@ output$fn <- renderUI({
       filter(is.na(daycent)==FALSE)
   },options = list(pageLength = 100))
   
+
+  
   output$downloadData <- downloadHandler(
     
     filename = function() {
       paste(input$filename, '.txt', sep='')
     },
     content = function(con) {
-      write.table(select(out1,-doy,-year),con,row.names=FALSE,quote = FALSE,col.names = FALSE)
+      
+      dl_vers<-select(out1,-doy,-year)
+        if(input$header==TRUE){
+          col1<-c("[XXX]","[XXX]","[XXX].100",0,-1,"-1.00",-1,-1,-1,0,0,-1,1,"[XXX]","","","Year Month Option",
+                  "[XXX]","[XXX]","[XXX]","[XXX]","12","0.01923","F","[XXX].wth")
+          col2<-c("Starting Year","Last Year","Site file name","Labeling type","Labeling Year","Microcosm",
+                  "CO2 Systems","pH effect","Soil Warming","N input scalar option","OMAD scalar option",
+                  "Climate scalar option","Initial system","Initial crop","Initial tree","","","Block",
+                  "Last year","Repeats","Output starting year","Output month","Output interval","Weather choice","")  
+          dl_vers<-data.frame(col1,col2) %>%
+            rbind(data.frame(col1="",col2=dl_vers$daycent)) %>%
+            rbind(data.frame(col1="-999 -999 X",col2=""))
+        }
+     
+      write.table(dl_vers,con,row.names=FALSE,quote = FALSE,col.names = FALSE
+                    )
     }
 )
   })  
