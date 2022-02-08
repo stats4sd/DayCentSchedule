@@ -1,14 +1,15 @@
 en,es
 Create DayCent Scheduler File From Input,Creacion del archivo con la plantilla de programacion para DayCent 
 Upload Completed Excel Schedule Template,Subir la plantilla completada con la programacion
-Include header/footer in schedule?,Incluir encabezamiento/pie de pagina en la programacion?
+Include header/footer in schedule?,Incluir encabezamiento/pie de pagina en el fichero de programacion?
 View Schedule,Ver programacion
 View Inputs,Ver entradas
-Download Blank Excel Template File:,Descargar el archivo Excel con la plantilla  vacia
+Download Blank Excel Template File:,Descargar el archivo Excel con la plantilla vacia
 WARNING,ATENCION
-code(s) specified in lookup list that were not found in the global dictionary,Algun codigo especificado en la lista de busqueda  no ha sido encontrado en el diccionario global
+code(s) specified in lookup list that were not found in the global dictionary,Algun codigo especificado en la lista de busqueda  no ha sido encontrado en el diccionario global de codigos
 These are:,Estas son:
 "Schedule file has been created with these codes still included.  Please check codes, and correct them if needed.","El fichero con la programacion ha sido creado y todavia incluye esos codigos. Por favor, chequee los codigos y si es necesario, corrijalos "
 Enter Output File Name,Entrar el Nombre del fichero de salida
 Download Daycent Schedule File,Descargar el archivo DayCent de programacion
 Language,Idioma
+Here,Aqui

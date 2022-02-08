@@ -63,8 +63,6 @@ server <- function(input, output, session) {
   
   
   observeEvent(input$selected_language, {
-    # This print is just for demonstration
-    print(paste("Language change!", input$selected_language))
     # Here is where we update language in session
     shiny.i18n::update_lang(session, input$selected_language)
   })
@@ -72,7 +70,8 @@ server <- function(input, output, session) {
   output$downloader<-renderText(
     
     HTML(paste(i18n$t('Download Blank Excel Template File:'),
-    '<a href="https://github.com/stats4sd/DayCentSchedule/raw/main/scheduleFile_template.xlsx">Here</a><br><br>'))
+    '<a href="https://github.com/stats4sd/DayCentSchedule/raw/main/scheduleFile_template.xlsx">',
+    i18n$t("Here"),'</a><br><br>'))
     
   )
   observeEvent(input$file1,{
