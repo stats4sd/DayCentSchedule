@@ -60,11 +60,12 @@ server <- function(input, output, session) {
   output$headerin <- renderUI({
     checkboxInput("header",i18n$t("Include header/footer in schedule?"),value = TRUE)
   })
-  
+
   
   observeEvent(input$selected_language, {
     # Here is where we update language in session
-    shiny.i18n::update_lang(session, input$selected_language)
+
+    shiny.i18n::update_lang(input$selected_language,session )
   })
   
   output$downloader<-renderText(
@@ -74,6 +75,7 @@ server <- function(input, output, session) {
     i18n$t("Here"),'</a><br><br>'))
     
   )
+
   observeEvent(input$file1,{
     
   
@@ -203,7 +205,7 @@ output$fn <- renderUI({
     content = function(con) {
       
       dl_vers<-select(out1,-doy,-year)
-        if(input$header==TRUE){
+            if(input$header==TRUE){
           col1<-c("[XXX]","[XXX]","[XXX].100",0,-1,"-1.00",-1,-1,-1,0,0,-1,1,"[XXX]","","","Year Month Option",
                   "[XXX]","[XXX]","[XXX]","[XXX]","12","0.08333","F","[XXX].wth","")
           col2<-c("Starting Year","Last Year","Site file name","Labeling type","Labeling Year","Microcosm",
